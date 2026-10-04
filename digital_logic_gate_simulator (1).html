@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Digital Logic Gate Simulator</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0e3a66;--bg2:#0a2c50;--line:rgba(190,220,250,.14);--ink:#eaf3fc;--dim:#93b4d4;--panel:rgba(6,28,52,.55);--edge:rgba(190,220,250,.28);--hi:#ffb627;--lo:#4d6d8f;--acc:#7cc4ff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100vh;color:var(--ink);font-family:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;background:linear-gradient(var(--line) 1px,transparent 1px) 0 0/28px 28px,linear-gradient(90deg,var(--line) 1px,transparent 1px) 0 0/28px 28px,radial-gradient(circle at 50% 0,var(--bg),var(--bg2));display:flex;justify-content:center;padding:24px 16px}
+.wrap{width:100%;max-width:560px;display:flex;flex-direction:column;gap:16px}
+.card{background:var(--panel);border:1px solid var(--edge);border-radius:14px;backdrop-filter:blur(6px)}
+.head{padding:20px 22px}.head .uni{margin:0;font-size:15px;font-weight:600;color:var(--dim)}
+.head h1{margin:6px 0 14px;font-size:30px;font-weight:800;letter-spacing:-.5px;line-height:1.1}
+.meta{display:flex;flex-wrap:wrap;gap:8px}.meta span{font-size:13px;padding:5px 11px;border:1px solid var(--edge);border-radius:99px;color:var(--dim)}.meta b{color:var(--ink);font-weight:600}
+.sim{padding:20px 22px}.lbl{font-size:14px;color:var(--dim);font-weight:600}
+.gates{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+.gates button{font:600 14px 'Bricolage Grotesque',system-ui,sans-serif;color:var(--ink);background:transparent;border:1px solid var(--edge);border-radius:8px;padding:8px 14px;cursor:pointer;transition:background .15s,color .15s,border-color .15s}
+.gates button:hover{border-color:var(--acc)}.gates button[aria-pressed="true"]{background:var(--acc);color:#06233f;border-color:var(--acc)}
+.switches{display:flex;gap:12px;margin:14px 0 4px}
+.sw{flex:1;display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;padding:12px 14px;border:1px solid var(--edge);border-radius:10px;background:rgba(255,255,255,.03);font:inherit;color:var(--ink);text-align:left;transition:opacity .2s}
+.sw[disabled]{opacity:.35;cursor:not-allowed}.sw .name{font-size:14px;font-weight:600}.sw .name small{display:block;color:var(--dim);font-weight:400;font-size:12px}
+.tog{width:46px;height:26px;border-radius:99px;background:var(--lo);position:relative;transition:background .2s;flex:none}.tog::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s}
+.sw[aria-checked="true"] .tog{background:var(--hi)}.sw[aria-checked="true"] .tog::after{transform:translateX(20px)}
+svg{width:100%;height:auto;display:block;margin:8px 0}.w{stroke:var(--lo);stroke-width:4;fill:none;stroke-linecap:round;transition:stroke .2s}.w.on{stroke:var(--hi)}
+.body{stroke:var(--ink);stroke-width:3;fill:rgba(255,255,255,.06);stroke-linejoin:round}.led{transition:fill .2s,filter .2s;fill:var(--lo)}.led.on{fill:var(--hi);filter:drop-shadow(0 0 10px var(--hi))}
+svg text{fill:var(--dim);font:600 13px 'Bricolage Grotesque',system-ui,sans-serif}
+.result{text-align:center;margin:2px 0 14px}.result .val{font:500 44px 'IBM Plex Mono',ui-monospace,monospace;line-height:1}.result .val.on{color:var(--hi)}.result .val.off{color:var(--dim)}.result .state{font-size:13px;color:var(--dim);margin-top:4px}
+.tt{padding:16px 22px 20px}.tt h2{margin:0 0 10px;font-size:15px;color:var(--dim);font-weight:600}.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font:500 15px 'IBM Plex Mono',ui-monospace,monospace;text-align:center}
+th{font:600 13px 'Bricolage Grotesque',system-ui,sans-serif;color:var(--dim);padding:6px;border-bottom:1px solid var(--edge)}td{padding:9px 6px;border-bottom:1px solid var(--line)}
+tr.act td{background:rgba(255,182,39,.14);color:var(--hi)}tr.act td:first-child{border-radius:6px 0 0 6px}tr.act td:last-child{border-radius:0 6px 6px 0}
+button:focus-visible{outline:2px solid var(--hi);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}@media(max-width:420px){.head h1{font-size:25px}.switches{flex-direction:column}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<header class="card head">
+<p class="uni">C. V. Raman Global University, Bhubaneswar</p>
+<h1>Digital Logic Gate Simulator</h1>
+<div class="meta"><span><b>Ankur Kumar</b></span><span>Reg No <b>ECE26L07</b></span><span>Branch <b>ECE</b></span></div>
+</header>
+<section class="card sim" aria-label="Simulator">
+<div class="lbl" style="margin-bottom:8px">Choose a gate</div>
+<div class="gates" id="gates"></div>
+<div class="switches">
+<button class="sw" id="swA" role="switch" aria-checked="false"><span class="name">Input A<small id="tA">0 (LOW)</small></span><span class="tog"></span></button>
+<button class="sw" id="swB" role="switch" aria-checked="false"><span class="name">Input B<small id="tB">0 (LOW)</small></span><span class="tog"></span></button>
+</div>
+<svg id="diagram" viewBox="0 0 400 170" role="img" aria-label="Logic gate diagram"></svg>
+<div class="result"><div class="val off" id="val">0</div><div class="state" id="state">Output is LOW</div></div>
+</section>
+<section class="card tt"><h2 id="ttTitle">Truth table</h2><div class="scroll"><table id="tt"></table></div></section>
+</main>
+<script>
+const F={AND:(a,b)=>a&b,OR:(a,b)=>a|b,NOT:(a)=>a?0:1,NAND:(a,b)=>(a&b)?0:1,NOR:(a,b)=>(a|b)?0:1,XOR:(a,b)=>a^b,XNOR:(a,b)=>(a^b)?0:1};
+const S={AND:'M110 35 H150 A45 45 0 0 1 150 125 H110 Z',OR:'M105 35 Q150 35 200 80 Q150 125 105 125 Q135 80 105 35 Z',XOR:'M105 35 Q150 35 200 80 Q150 125 105 125 Q135 80 105 35 Z M92 35 Q122 80 92 125',NOT:'M115 42 L190 80 L115 118 Z'};
+let gate='AND',A=0,B=0;const $=id=>document.getElementById(id);
+$('gates').innerHTML=Object.keys(F).map(g=>`<button data-g="${g}" aria-pressed="${g===gate}">${g}</button>`).join('');
+$('gates').addEventListener('click',e=>{const g=e.target.dataset.g;if(g){gate=g;if(g==='NOT')B=0;render();}});
+$('swA').onclick=()=>{A^=1;render();};$('swB').onclick=()=>{if(gate!=='NOT'){B^=1;render();}};
+function draw(out){
+ const base=gate.replace(/^N(?=AND|OR)/,'').replace(/^XNOR$/,'XOR');
+ const bubble=['NAND','NOR','XNOR','NOT'].includes(gate);
+ const shape=gate==='NOT'?S.NOT:S[base];
+ const tipX=gate==='NOT'?190:200;
+ const outStart=tipX+(bubble?14:0),two=gate!=='NOT';
+ const c=v=>v?'w on':'w';let s='';
+ if(two){s+=`<path class="${c(A)}" d="M20 55 H${base==='AND'?110:112}"/><path class="${c(B)}" d="M20 105 H${base==='AND'?110:112}"/>`;s+=`<text x="4" y="50">A</text><text x="4" y="100">B</text>`;}
+ else{s+=`<path class="${c(A)}" d="M20 80 H115"/><text x="4" y="75">A</text>`;}
+ s+=`<path class="body" d="${shape}"/>`;
+ if(bubble)s+=`<circle class="body" cx="${tipX+7}" cy="80" r="7" style="fill:#0a2c50"/>`;
+ s+=`<path class="${c(out)}" d="M${outStart} 80 H335"/><circle class="led ${out?'on':''}" cx="358" cy="80" r="17"/><text x="349" y="118">Y</text>`;
+ $('diagram').innerHTML=s;
+}
+function render(){
+ const two=gate!=='NOT',out=F[gate](A,B);
+ document.querySelectorAll('#gates button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.g===gate));
+ $('swA').setAttribute('aria-checked',!!A);$('swB').setAttribute('aria-checked',!!B);$('swB').disabled=!two;
+ $('tA').textContent=A?'1 (HIGH)':'0 (LOW)';$('tB').textContent=two?(B?'1 (HIGH)':'0 (LOW)'):'Not used';
+ const v=$('val');v.textContent=out;v.className='val '+(out?'on':'off');$('state').textContent='Output is '+(out?'HIGH':'LOW');
+ draw(out);$('ttTitle').textContent=gate+' truth table';
+ const rows=two?[[0,0],[0,1],[1,0],[1,1]]:[[0],[1]];
+ $('tt').innerHTML=`<tr><th>A</th>${two?'<th>B</th>':''}<th>Output</th></tr>`+rows.map(r=>`<tr class="${r[0]===A&&(!two||r[1]===B)?'act':''}"><td>${r[0]}</td>${two?`<td>${r[1]}</td>`:''}<td>${F[gate](r[0],r[1])}</td></tr>`).join('');
+}
+render();
+</script>
+</body>
+</html>
